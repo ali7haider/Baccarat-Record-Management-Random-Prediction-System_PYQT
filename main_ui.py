@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1041, 646)
+        MainWindow.resize(1041, 737)
         MainWindow.setMinimumSize(QtCore.QSize(1041, 646))
         self.styleSheet = QtWidgets.QWidget(MainWindow)
         font = QtGui.QFont()
@@ -203,22 +203,8 @@ class Ui_MainWindow(object):
 "\n"
 "/* CONTENT SETTINGS */\n"
 "/* MENUS */\n"
-"#contentSettings .QPushButton {    \n"
-"    background-position: left center;\n"
-"    background-repeat: no-repeat;\n"
-"    border: none;\n"
-"    border-left: 22px solid transparent;\n"
-"    background-color:transparent;\n"
-"    text-align: left;\n"
-"    padding-left: 44px;\n"
-"}\n"
-"#contentSettings .QPushButton:hover {\n"
-"    background-color: rgb(40, 44, 52);\n"
-"}\n"
-"#contentSettings .QPushButton:pressed {    \n"
-"background-color:rgb(85, 170, 255);\n"
-"    color: rgb(255, 255, 255);\n"
-"}\n"
+"\n"
+"\n"
 "\n"
 "/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
 "QTableWidget */\n"
@@ -514,8 +500,7 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
-"Button */\n"
-"#pagesContainer QPushButton {\n"
+"Button #pagesContainer QPushButton {\n"
 "    border: 2px solid rgb(52, 59, 72);\n"
 "    border-radius: 5px;    \n"
 "    background-color: rgb(52, 59, 72);\n"
@@ -527,8 +512,18 @@ class Ui_MainWindow(object):
 "#pagesContainer QPushButton:pressed {    \n"
 "    background-color: rgb(35, 40, 49);\n"
 "    border: 2px solid rgb(43, 50, 61);\n"
-"}\n"
+"}*/\n"
 "\n"
+"QPushButton {\n"
+"background-color:rgb(85, 170, 255);\n"
+"font: 75 12pt \"Arial\";\n"
+"color:white;\n"
+"border-radius:25px;\n"
+"padding:6px 8px;\n"
+"}\n"
+"QPushButton:hover {\n"
+"background-color:#4673c6;\n"
+"}\n"
 "")
         self.styleSheet.setObjectName("styleSheet")
         self.appMargins = QtWidgets.QVBoxLayout(self.styleSheet)
@@ -691,11 +686,11 @@ class Ui_MainWindow(object):
         self.btn_share.setSizePolicy(sizePolicy)
         self.btn_share.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_share.setFont(font)
         self.btn_share.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_share.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -710,11 +705,11 @@ class Ui_MainWindow(object):
         self.btn_adjustments.setSizePolicy(sizePolicy)
         self.btn_adjustments.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_adjustments.setFont(font)
         self.btn_adjustments.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_adjustments.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -729,11 +724,11 @@ class Ui_MainWindow(object):
         self.btn_more.setSizePolicy(sizePolicy)
         self.btn_more.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_more.setFont(font)
         self.btn_more.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_more.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -835,12 +830,11 @@ class Ui_MainWindow(object):
         self.maximizeRestoreAppBtn.setMinimumSize(QtCore.QSize(28, 28))
         self.maximizeRestoreAppBtn.setMaximumSize(QtCore.QSize(28, 28))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
-        font.setStyleStrategy(QtGui.QFont.PreferDefault)
+        font.setWeight(9)
         self.maximizeRestoreAppBtn.setFont(font)
         self.maximizeRestoreAppBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.maximizeRestoreAppBtn.setText("")
@@ -885,7 +879,7 @@ class Ui_MainWindow(object):
         self.pagesContainer.setFrameShadow(QtWidgets.QFrame.Raised)
         self.pagesContainer.setObjectName("pagesContainer")
         self.verticalLayout_15 = QtWidgets.QVBoxLayout(self.pagesContainer)
-        self.verticalLayout_15.setContentsMargins(10, 10, 10, 10)
+        self.verticalLayout_15.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_15.setSpacing(0)
         self.verticalLayout_15.setObjectName("verticalLayout_15")
         self.frame = QtWidgets.QFrame(self.pagesContainer)
@@ -896,30 +890,35 @@ class Ui_MainWindow(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.frame_83 = QtWidgets.QFrame(self.frame)
-        self.frame_83.setStyleSheet("#frame_2\n"
-"{\n"
-"    background-color: #1a1c1e;\n"
-"}")
-        self.frame_83.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_83.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_83.setObjectName("frame_83")
-        self.horizontalLayout_26 = QtWidgets.QHBoxLayout(self.frame_83)
-        self.horizontalLayout_26.setSpacing(16)
-        self.horizontalLayout_26.setObjectName("horizontalLayout_26")
-        self.verticalLayout.addWidget(self.frame_83)
-        self.frame_90 = QtWidgets.QFrame(self.frame)
-        self.frame_90.setStyleSheet("#frame_3\n"
-"{\n"
-"    background-color: #1a1c1e;\n"
-"}")
-        self.frame_90.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_90.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_90.setObjectName("frame_90")
-        self.horizontalLayout_28 = QtWidgets.QHBoxLayout(self.frame_90)
-        self.horizontalLayout_28.setSpacing(16)
-        self.horizontalLayout_28.setObjectName("horizontalLayout_28")
-        self.verticalLayout.addWidget(self.frame_90)
+        self.gridFrame = QtWidgets.QFrame(self.frame)
+        self.gridFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.gridFrame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.gridFrame.setObjectName("gridFrame")
+        self.verticalLayout.addWidget(self.gridFrame)
+        self.frame_2 = QtWidgets.QFrame(self.frame)
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 80))
+        self.frame_2.setStyleSheet("")
+        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.frame_2)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.btnPlayer = QtWidgets.QPushButton(self.frame_2)
+        self.btnPlayer.setMinimumSize(QtCore.QSize(50, 50))
+        self.btnPlayer.setStyleSheet("background-color:#3E8AEF;")
+        self.btnPlayer.setObjectName("btnPlayer")
+        self.horizontalLayout_6.addWidget(self.btnPlayer)
+        self.btnTie = QtWidgets.QPushButton(self.frame_2)
+        self.btnTie.setMinimumSize(QtCore.QSize(50, 50))
+        self.btnTie.setStyleSheet("background-color:#29BE66;")
+        self.btnTie.setObjectName("btnTie")
+        self.horizontalLayout_6.addWidget(self.btnTie)
+        self.btnBank = QtWidgets.QPushButton(self.frame_2)
+        self.btnBank.setMinimumSize(QtCore.QSize(50, 50))
+        self.btnBank.setStyleSheet("background-color:#FF0000;")
+        self.btnBank.setObjectName("btnBank")
+        self.horizontalLayout_6.addWidget(self.btnBank)
+        self.verticalLayout.addWidget(self.frame_2, 0, QtCore.Qt.AlignHCenter)
         self.verticalLayout_15.addWidget(self.frame)
         self.horizontalLayout_4.addWidget(self.pagesContainer)
         self.extraRightBox = QtWidgets.QFrame(self.content)
@@ -962,11 +961,11 @@ class Ui_MainWindow(object):
         self.btn_message.setSizePolicy(sizePolicy)
         self.btn_message.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_message.setFont(font)
         self.btn_message.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_message.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -981,11 +980,11 @@ class Ui_MainWindow(object):
         self.btn_print.setSizePolicy(sizePolicy)
         self.btn_print.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_print.setFont(font)
         self.btn_print.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_print.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -1000,11 +999,11 @@ class Ui_MainWindow(object):
         self.btn_logout.setSizePolicy(sizePolicy)
         self.btn_logout.setMinimumSize(QtCore.QSize(0, 45))
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(10)
+        font.setFamily("Arial")
+        font.setPointSize(12)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.btn_logout.setFont(font)
         self.btn_logout.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_logout.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -1088,9 +1087,12 @@ class Ui_MainWindow(object):
         self.minimizeAppBtn.setToolTip(_translate("MainWindow", "Minimize"))
         self.maximizeRestoreAppBtn.setToolTip(_translate("MainWindow", "Maximize"))
         self.closeAppBtn.setToolTip(_translate("MainWindow", "Close"))
+        self.btnPlayer.setText(_translate("MainWindow", "P"))
+        self.btnTie.setText(_translate("MainWindow", "T"))
+        self.btnBank.setText(_translate("MainWindow", "B"))
         self.btn_message.setText(_translate("MainWindow", "Message"))
         self.btn_print.setText(_translate("MainWindow", "Print"))
         self.btn_logout.setText(_translate("MainWindow", "Logout"))
-        self.creditsLabel.setText(_translate("MainWindow", "Copyright 2024 AutoPostToolkit by AutoPost | All Rights Reserved"))
-        self.visit.setText(_translate("MainWindow", "<html><head/><body><p>Get Support - <a href=\"https://auto-post.net/\"><span style=\" text-decoration: underline; color:#4673c6;\">Visit our Website</span></a></p></body></html>"))
+        self.creditsLabel.setText(_translate("MainWindow", "Copyright 2024 Baccarat Record Management by Marker | All Rights Reserved"))
+        self.visit.setText(_translate("MainWindow", "<html><head/><body><p>How to Play - <a href=\"https://auto-post.net/\"><span style=\" text-decoration: underline; color:#4673c6;\">Visit our Website</span></a></p></body></html>"))
 import resources_rc

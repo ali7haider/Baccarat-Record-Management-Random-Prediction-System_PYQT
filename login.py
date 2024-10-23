@@ -17,11 +17,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):  # Inherit from the generated clas
 
         # Set flags to remove the default title bar
         self.setWindowFlags(Qt.FramelessWindowHint)
-
+    
         self.db_manager = DatabaseManager("data.db")  # Initialize DatabaseManager
         self.db_manager.create_table()  # Ensure table is created
 
-        if not self.db_manager.insert_user("", "", isActive=1):
+        if not self.db_manager.insert_user("admin", "password", isActive=1):
             print("Failed to insert user: Username already exists.")        # Connect login button click event to the login function
         self.btnLogIn.clicked.connect(self.check_credentials)
 

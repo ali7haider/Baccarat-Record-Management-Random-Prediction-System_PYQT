@@ -590,8 +590,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_17.addWidget(self.label)
         self.txtUsername = QtWidgets.QLineEdit(self.frame_3)
         self.txtUsername.setMinimumSize(QtCore.QSize(0, 37))
-        self.txtUsername.setStyleSheet("\n"
-"")
+        self.txtUsername.setStyleSheet("")
         self.txtUsername.setObjectName("txtUsername")
         self.verticalLayout_17.addWidget(self.txtUsername)
         self.label_2 = QtWidgets.QLabel(self.frame_3)
@@ -611,6 +610,7 @@ class Ui_MainWindow(object):
 "#license_key_line:focus {\n"
 "    border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is focused/clicked */\n"
 "}")
+        self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
         self.txtPassword.setObjectName("txtPassword")
         self.verticalLayout_17.addWidget(self.txtPassword)
         self.lblError = QtWidgets.QLabel(self.frame_3)

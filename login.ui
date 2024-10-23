@@ -1102,8 +1102,7 @@ color:white;
                             </size>
                            </property>
                            <property name="styleSheet">
-                            <string notr="true">
-</string>
+                            <string notr="true"/>
                            </property>
                            <property name="placeholderText">
                             <string>Enter Username</string>
@@ -1140,6 +1139,9 @@ color:white;</string>
 #license_key_line:focus {
     border: 2px solid rgb(85, 170, 255);  /* Change the border color when the button is focused/clicked */
 }</string>
+                           </property>
+                           <property name="echoMode">
+                            <enum>QLineEdit::Password</enum>
                            </property>
                            <property name="placeholderText">
                             <string>Enter Password</string>
