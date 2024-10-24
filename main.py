@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from qtwidgets import AnimatedToggle
 import random
-
+import resources_rc
 class MainWindow(QMainWindow):
     def __init__(self, login_screen=None, db_manager=None, user=None):
         super(MainWindow, self).__init__()
@@ -37,8 +37,17 @@ class MainWindow(QMainWindow):
         self.results_history = []
         self.labels_history = []
 
+        # Budget-related attributes
+        self.budget_tracking_enabled = False  # By default, tracking is off
+        self.budget = 0  # Initial budget
+        self.bet_amount = 10  # Default bet amount, can be adjusted
+        self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+
+
         # Connect Predict button
         self.btnPredict.clicked.connect(self.predict_outcome)
+
+        self.btnSetBudget.clicked.connect(self.set_budget)
 
         # Initialize the progress bar
         self.progressBarAIAnalysis.setValue(0)
@@ -48,8 +57,32 @@ class MainWindow(QMainWindow):
         self.last_winning_rate = None
         self.last_bet_amount = None
         self.prediction_history_size = 0  # Stores size of history when prediction was last made
+    def set_budget(self):
+        # Get the input from the budgetInput field
+        budget_text = self.budgetInput.text()
+
+        # Validate the input
+        try:
+            # Convert the input to a float
+            budget = float(budget_text)
+
+            # Ensure the budget is not zero or negative
+            if budget <= 0:
+                QMessageBox.warning(self, 'Invalid Budget', 'Budget must be greater than zero.')
+                return
+
+            # Save the budget
+            self.budget = budget
+            self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+
+            print(f"Budget set to: ${self.budget:.2f}")
+
+        except ValueError:
+            # Handle non-numeric input
+            QMessageBox.warning(self, 'Invalid Input', 'Please enter a valid number for the budget.')
 
 
+    
     def initGrid(self):
         self.grid_layout = QGridLayout()
         rows = 6
@@ -107,6 +140,8 @@ class MainWindow(QMainWindow):
 
             self.grid_layout.addWidget(new_label, row, col)
             self.current_row[col] += 1
+            # After result is added, update the budget based on the AI prediction
+            self.update_budget(result)
 
     def setup_label(self, label, text, color):
         label.setStyleSheet(f"""
@@ -150,6 +185,20 @@ class MainWindow(QMainWindow):
                     self.grid_cells[row][col] = label
                     self.grid_layout.addWidget(label, row, col)
 
+        # Reset the prediction cache
+        self.last_prediction = None
+        self.last_winning_rate = None
+        self.last_bet_amount = None
+        self.prediction_history_size = 0
+
+        # Reset the progress bar
+        self.progressBarAIAnalysis.setValue(0)
+
+        # # Clear the prediction labels
+        # self.labelPredictionOutcome.setText("Prediction: -")
+        # self.labelWinningRate.setText("Winning Rate: -")
+        # self.labelBetAmount.setText("Bet Amount: -")
+
     def remove_last_result(self):
         if self.results_history and self.labels_history:
             last_result, row, col = self.results_history.pop()
@@ -184,8 +233,26 @@ class MainWindow(QMainWindow):
         self.last_winning_rate = winning_rate
         self.last_bet_amount = bet_amount
         self.prediction_history_size = len(self.results_history)  # Update history size at prediction time
+        
+        # Update budget if tracking is enabled
+        self.update_budget(predicted_outcome)
+
         # Display the prediction
         self.display_prediction(predicted_outcome, winning_rate, bet_amount)
+
+    def update_budget(self, outcome):
+        # Ensure budget tracking is enabled
+        if self.budget_tracking_enabled:
+            bet_amount = self.last_bet_amount if self.last_bet_amount else 1  # Default bet amount
+
+            if self.last_prediction == outcome:  # AI prediction was correct
+                self.budget += bet_amount
+                self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+                print(f"AI prediction was correct. New budget: {self.budget:.2f}")
+            else:  # AI prediction was incorrect
+                self.budget -= bet_amount
+                self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+                print(f"AI prediction was incorrect. New budget: {self.budget:.2f}")
 
     def display_prediction(self, predicted_outcome, winning_rate, bet_amount):
         self.labelPredictionOutcome.setText(f"Prediction: {predicted_outcome[0]}")  # 'P' or 'B'
@@ -214,9 +281,12 @@ class MainWindow(QMainWindow):
 
     def on_toggle_change(self, state):
         if state == Qt.Checked:
-            print("Toggle ON")
+            self.budget_tracking_enabled = True
+            print("Budget tracking ON")
         else:
-            print("Toggle OFF")
+            self.budget_tracking_enabled = False
+            print("Budget tracking OFF")
+
     def maximize_window(self):
         if self.isMaximized():
             self.showNormal()

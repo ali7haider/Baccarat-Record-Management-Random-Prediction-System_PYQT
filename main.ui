@@ -1878,7 +1878,7 @@ color:white;</string>
                                     <number>0</number>
                                    </property>
                                    <item>
-                                    <widget class="QTextEdit" name="labelCurrentBudget"/>
+                                    <widget class="QTextEdit" name="budgetDisplay"/>
                                    </item>
                                   </layout>
                                  </widget>
