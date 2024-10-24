@@ -1747,7 +1747,7 @@ color:white;</string>
                                 <number>0</number>
                                </property>
                                <item>
-                                <widget class="QLineEdit" name="lineEdit">
+                                <widget class="QLineEdit" name="budgetInput">
                                  <property name="minimumSize">
                                   <size>
                                    <width>0</width>
@@ -1774,7 +1774,7 @@ color:white;</string>
                                 </widget>
                                </item>
                                <item>
-                                <widget class="QPushButton" name="pushButton_4">
+                                <widget class="QPushButton" name="btnSetBudget">
                                  <property name="minimumSize">
                                   <size>
                                    <width>120</width>
@@ -1861,6 +1861,26 @@ color:white;</string>
                                     <height>189</height>
                                    </rect>
                                   </property>
+                                  <layout class="QVBoxLayout" name="verticalLayout_24">
+                                   <property name="spacing">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="leftMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="topMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="rightMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <property name="bottomMargin">
+                                    <number>0</number>
+                                   </property>
+                                   <item>
+                                    <widget class="QTextEdit" name="labelCurrentBudget"/>
+                                   </item>
+                                  </layout>
                                  </widget>
                                 </widget>
                                </item>
@@ -1906,13 +1926,13 @@ color:white;</string>
                                 </widget>
                                </item>
                                <item>
-                                <widget class="QProgressBar" name="progressBar">
+                                <widget class="QProgressBar" name="progressBarAIAnalysis">
                                  <property name="styleSheet">
                                   <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;
 color:white;</string>
                                  </property>
                                  <property name="value">
-                                  <number>24</number>
+                                  <number>0</number>
                                  </property>
                                  <property name="alignment">
                                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2013,22 +2033,67 @@ color:white;</string>
                                  <property name="alignment">
                                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                  </property>
-                                 <layout class="QVBoxLayout" name="verticalLayout_22">
+                                 <layout class="QHBoxLayout" name="horizontalLayout_12">
                                   <property name="spacing">
                                    <number>0</number>
                                   </property>
                                   <property name="leftMargin">
-                                   <number>0</number>
+                                   <number>10</number>
                                   </property>
                                   <property name="topMargin">
-                                   <number>0</number>
+                                   <number>5</number>
                                   </property>
                                   <property name="rightMargin">
-                                   <number>0</number>
+                                   <number>10</number>
                                   </property>
                                   <property name="bottomMargin">
-                                   <number>0</number>
+                                   <number>5</number>
                                   </property>
+                                  <item>
+                                   <widget class="QFrame" name="frame_14">
+                                    <property name="frameShape">
+                                     <enum>QFrame::StyledPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                     <enum>QFrame::Raised</enum>
+                                    </property>
+                                    <layout class="QVBoxLayout" name="verticalLayout_22">
+                                     <item>
+                                      <widget class="QLabel" name="labelPredictionOutcome">
+                                       <property name="text">
+                                        <string/>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                    </layout>
+                                   </widget>
+                                  </item>
+                                  <item>
+                                   <widget class="QFrame" name="frame_15">
+                                    <property name="frameShape">
+                                     <enum>QFrame::StyledPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                     <enum>QFrame::Raised</enum>
+                                    </property>
+                                    <layout class="QVBoxLayout" name="verticalLayout_25">
+                                     <item>
+                                      <widget class="QLabel" name="labelWinningRate">
+                                       <property name="text">
+                                        <string/>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item>
+                                      <widget class="QLabel" name="labelBetAmount">
+                                       <property name="text">
+                                        <string/>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                    </layout>
+                                   </widget>
+                                  </item>
                                  </layout>
                                 </widget>
                                </item>
