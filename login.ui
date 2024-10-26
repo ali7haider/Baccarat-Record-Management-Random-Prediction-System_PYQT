@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>740</height>
+    <width>534</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1513,7 +1513,7 @@ background-color:#4673c6;
                    </font>
                   </property>
                   <property name="text">
-                   <string>Copyright 2024 Baccarat Record Management by Marker | All Rights Reserved</string>
+                   <string/>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
@@ -1523,7 +1523,7 @@ background-color:#4673c6;
                 <item>
                  <widget class="QLabel" name="visit">
                   <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How to Play - &lt;a href=&quot;https://auto-post.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#4673c6;&quot;&gt;Visit our Website&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string/>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

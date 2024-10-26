@@ -1,14 +1,22 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QLabel, QMessageBox, QPushButton,QVBoxLayout
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QMouseEvent
 from PyQt5 import uic
 from qtwidgets import AnimatedToggle
 import random
 import resources_rc
+from datetime import datetime
+# def check_expiration():
+#     expiration_date = datetime(2024, 10, 27)
+#     if datetime.now() > expiration_date:
+#         QMessageBox.warning(None, "Expired", "The program has expired!")
+#         sys.exit()
 class MainWindow(QMainWindow):
     def __init__(self, login_screen=None, db_manager=None, user=None):
         super(MainWindow, self).__init__()
-
+        # Check if the program has expired
+        # check_expiration()
         # Load the .ui file directly
         uic.loadUi('main.ui', self)
         self.login_screen = login_screen
@@ -42,13 +50,19 @@ class MainWindow(QMainWindow):
         self.budget = 0  # Initial budget
         self.bet_amount = 10  # Default bet amount, can be adjusted
         self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+        # List to track budget history
+        self.budget_history = []  # List of tuples (new_budget, change)
+        self.total_profit = 0
+        self.initial_budget=0
+
 
 
         # Connect Predict button
         self.btnPredict.clicked.connect(self.predict_outcome)
 
         self.btnSetBudget.clicked.connect(self.set_budget)
-
+        # Connect btnResetLogs to reset_logs method
+        self.btnResetLogs.clicked.connect(self.reset_logs)
         # Initialize the progress bar
         self.progressBarAIAnalysis.setValue(0)
 
@@ -70,12 +84,19 @@ class MainWindow(QMainWindow):
         self.sequence_1324_index = 0  # Track index in the sequence
 
         self.current_bet_round = 0  # Track which betting system to use
+
+        
+    
     def calculate_bet_amount(self):
-        total_bankroll = self.budget  # Use the current budget as the bankroll
+        # Use the initial budget instead of the current budget for calculations
+        total_bankroll = self.initial_budget
+
+        # Rotate betting system by incrementing the bet round
         self.current_bet_round += 1
 
         if self.current_bet_round % 3 == 1:  # Oscar's Grind
             bet_amount = self.oscar_bet
+            self.last_bet_amount = bet_amount  # Track the last bet amount
             print(f"Oscar's Grind bet: ${bet_amount:.2f}")
             return bet_amount
 
@@ -83,36 +104,52 @@ class MainWindow(QMainWindow):
             if len(self.labouchere_list) > 1:
                 bet_amount = self.labouchere_list[0] + self.labouchere_list[-1]
             else:
-                bet_amount = self.labouchere_list[0]  # Only one number left in the list
+                bet_amount = self.labouchere_list[0]
+            self.last_bet_amount = bet_amount
             print(f"Labouchere bet: ${bet_amount:.2f}")
+            print("Labouchere list: ",self.labouchere_list," len: ",len(self.labouchere_list))
             return bet_amount
 
         elif self.current_bet_round % 3 == 0:  # 1324 system
             bet_amount = self.sequence_1324[self.sequence_1324_index]
+            self.last_bet_amount = bet_amount
             print(f"1324 system bet: ${bet_amount:.2f}")
             return bet_amount
 
     def update_betting_system(self, outcome):
         # Oscar's Grind update
-        if self.current_bet_round % 3 == 1:
+        print("Updating Betting System - Current Bet Round:", self.current_bet_round)
+        print("Outcome Comparison:", self.last_prediction, "vs", outcome)
+
+        if self.current_bet_round % 3 == 1:  # Oscar's Grind betting system
+            print("Oscar's Grind Current Bet:", self.oscar_bet)
+            print("Oscar's Grind Profit:", self.oscar_profit)
+            print("Oscar's Grind Target Unit (5% of initial budget):", self.oscar_unit)
+
             if self.last_prediction == outcome:  # Win
                 self.oscar_profit += self.oscar_bet
-                if self.oscar_profit >= self.oscar_unit:  # Goal reached (1 unit profit)
-                    self.oscar_bet = self.oscar_unit  # Reset to 1 unit
-                    self.oscar_profit = 0  # Reset profit for next cycle
-                else:
-                    self.oscar_bet += self.oscar_unit  # Increase bet on win
-            else:  # Loss
-                pass  # Continue betting the same amount
+                print("Win! New Oscar Profit:", self.oscar_profit)
 
+                if self.oscar_profit <= self.oscar_unit:  # Still below goal
+                    self.oscar_bet += self.oscar_unit  # Increase bet by 1 unit
+                    print("Bet increased by 1 unit. New Oscar's Grind Bet:", self.oscar_bet)
+                else:  # Goal reached or exceeded
+                    self.oscar_bet = self.initial_budget * 0.05  # Reset to 1 unit
+                    self.oscar_profit = 0  # Start a new cycle
+                    print("Goal achieved! Resetting Oscar's Grind bet to 1 unit:", self.oscar_bet)
+                    print("Oscar's Grind profit reset for new cycle.")
+
+            else:  # Loss case
+                print("Loss. Oscar's Grind Bet remains the same:", self.oscar_bet)
+            # Loss case: continue with the same bet
         # Labouchere update
         elif self.current_bet_round % 3 == 2:
             if self.last_prediction == outcome:  # Win
                 if len(self.labouchere_list) > 1:
-                    self.labouchere_list.pop(0)  # Remove first
-                    self.labouchere_list.pop(-1)  # Remove last
-                else:
-                    self.labouchere_list.clear()  # Reset list on cycle completion
+                    self.labouchere_list.pop(0)
+                    self.labouchere_list.pop(-1)
+                if not self.labouchere_list:  # Reset cycle if all numbers removed
+                    self.labouchere_list = [self.initial_budget * 0.01 for _ in range(10)]
             else:  # Loss
                 lost_amount = self.labouchere_list[0] + self.labouchere_list[-1]
                 self.labouchere_list.append(lost_amount)  # Add lost amount to the end
@@ -120,13 +157,17 @@ class MainWindow(QMainWindow):
         # 1324 system update
         elif self.current_bet_round % 3 == 0:
             if self.last_prediction == outcome:  # Win
-                self.sequence_1324_index = (self.sequence_1324_index + 1) % 4  # Move to next in sequence
+                if self.sequence_1324_index == len(self.sequence_1324) - 1:
+                    self.sequence_1324_index = 0  # Reset to start after full cycle
+                else:
+                    self.sequence_1324_index += 1  # Advance in sequence
             else:  # Loss
-                self.sequence_1324_index = 0  # Reset to the first unit
+                self.sequence_1324_index = 0  # Reset to first unit
+
 
     def set_budget(self):
         budget_text = self.budgetInput.text()
-
+        
         try:
             budget = float(budget_text)
 
@@ -134,17 +175,72 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, 'Invalid Budget', 'Budget must be greater than zero.')
                 return
 
+            # Set initial and current budget
             self.budget = budget
+            self.initial_budget = budget  # Store initial budget separately
             self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
 
-            # Reinitialize the Labouchere and 1324 system after budget is set
-            self.labouchere_list = [self.budget * 0.01 for _ in range(10)]  # 10% of bankroll divided into 10 parts
-            self.sequence_1324 = [self.budget * 0.01, self.budget * 0.03, self.budget * 0.02, self.budget * 0.04]  # 1%, 3%, 2%, 4%
+            # Reset budget history and total profit
+            self.budget_history = [(self.budget, 0)]  # Start with initial budget and no change
+            self.total_profit = 0
 
-            print(f"Budget set to: ${self.budget:.2f}")
+            # Initialize/reset betting systems based on initial budget
+            self.oscar_unit = self.initial_budget * 0.05  # 5% of initial budget as 1 unit
+            self.oscar_bet = self.oscar_unit  # Start with 1 unit
+            self.oscar_profit = 0  # Reset profit tracker
+
+            self.labouchere_list = [self.initial_budget * 0.01 for _ in range(10)]  # 10% of initial budget split
+            self.sequence_1324 = [self.initial_budget * 0.01, self.initial_budget * 0.03,
+                                self.initial_budget * 0.02, self.initial_budget * 0.04]
+            self.sequence_1324_index = 0  # Start at first in sequence
+
+            print(f"Initial Budget set to: ${self.initial_budget:.2f}")
+            self.budgetInput.clear()
+            self.update_budget_display()  # Display the new initial budget in the log
 
         except ValueError:
             QMessageBox.warning(self, 'Invalid Input', 'Please enter a valid number for the budget.')
+
+    def update_budget(self, outcome):
+        # Ensure budget tracking is enabled
+        if self.budget_tracking_enabled:
+            
+            bet_amount = self.last_bet_amount if self.last_bet_amount else 1  # Use last bet amount
+            previous_budget = self.budget
+            change = bet_amount if self.last_prediction == outcome else -bet_amount
+
+            # Update budget and record change
+            self.budget += change
+            self.total_profit += change
+            self.budget_history.append((self.budget, change))
+            self.update_betting_system(outcome)
+            self.update_budget_display()  # Display the updated budget   
+    def update_budget_display(self):
+        # Clear the text area first
+        self.budgetDisplay.clear()
+
+        # Log the initial budget with comma formatting
+        initial_budget = f"{self.budget_history[0][0]:,.2f}"
+        self.budgetDisplay.append(f"Initial Budget: ${initial_budget}")
+
+        # Log all changes in budget with color and comma formatting
+        for new_budget, change in self.budget_history[1:]:  # Skip the initial budget
+            sign = "+" if change >= 0 else ""
+            color = "#3C7ADA" if change >= 0 else "#FE0009"  # Blue for profit, red for loss
+            new_budget_formatted = f"{new_budget:,.2f}"
+            change_formatted = f"{change:,.2f}"
+            
+            # Apply color styling to the change amount
+            self.budgetDisplay.append(
+                f"{new_budget_formatted} ...... <span style='color:{color};'>{sign}{change_formatted}</span>"
+            )
+
+        # Log the total profit with comma formatting
+        total_profit_formatted = f"{self.total_profit:,.2f}"
+        self.budgetDisplay.append(f"\nTotal Profit: ${total_profit_formatted}")
+
+    
+
 
 
 
@@ -206,7 +302,6 @@ class MainWindow(QMainWindow):
 
             self.grid_layout.addWidget(new_label, row, col)
             self.current_row[col] += 1
-
             # Now update the budget after the result is logged
             if self.last_prediction is not None:
                 self.update_budget(result)
@@ -215,9 +310,13 @@ class MainWindow(QMainWindow):
     def setup_label(self, label, text, color):
         label.setStyleSheet(f"""
             background-color: {color}; 
-            border-radius: 15px; 
+            border-radius: 17px; 
             color: white; 
             margin: 5px; 
+            min-height:34px;
+            min-width:34px;
+            max-height:34px;
+            max-width:34px;
         """)
         label.setText(text)
 
@@ -262,23 +361,6 @@ class MainWindow(QMainWindow):
 
         # Reset the progress bar
         self.progressBarAIAnalysis.setValue(0)
-
-        # # Clear the prediction labels
-        # self.labelPredictionOutcome.setText("Prediction: -")
-        # self.labelWinningRate.setText("Winning Rate: -")
-        # self.labelBetAmount.setText("Bet Amount: -")
-
-    def remove_last_result(self):
-        if self.results_history and self.labels_history:
-            last_result, row, col = self.results_history.pop()
-            last_label = self.labels_history.pop()
-
-            self.grid_layout.removeWidget(last_label)
-            last_label.deleteLater()
-
-            if self.current_row[col] > 0:
-                self.current_row[col] -= 1
-
     def predict_outcome(self):
         if len(self.results_history) <= 15:
             QMessageBox.warning(self, 'Insufficient Data', 'Insufficient data for analysis.')
@@ -302,33 +384,19 @@ class MainWindow(QMainWindow):
             predicted_outcome='Bank'
         self.last_prediction = predicted_outcome
         self.last_winning_rate = winning_rate
+        self.prediction_history_size = len(self.results_history)
 
         # Calculate the bet amount based on the current betting system
         self.last_bet_amount = self.calculate_bet_amount()
 
-        # Update the betting system (but don't update the budget yet)
-        self.update_betting_system(predicted_outcome)
+        
 
         # Display the prediction
         self.display_prediction(predicted_outcome, winning_rate, self.last_bet_amount)
 
 
 
-    def update_budget(self, outcome):
-        # Ensure budget tracking is enabled
-        if self.budget_tracking_enabled:
-            bet_amount = self.last_bet_amount if self.last_bet_amount else 1  # Default bet amount
-
-            print(f"Last Prediction: {self.last_prediction}, Actual Outcome: {outcome}")
-            if self.last_prediction == outcome:  # AI prediction was correct
-
-                self.budget += bet_amount
-                self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
-                print(f"AI prediction was correct. New budget: {self.budget:.2f}")
-            else:  # AI prediction was incorrect
-                self.budget -= bet_amount
-                self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
-                print(f"AI prediction was incorrect. New budget: {self.budget:.2f}")
+    
 
     def display_prediction(self, predicted_outcome, winning_rate, bet_amount):
     # Ensure the predictionOutcomeFrame has a layout
@@ -346,7 +414,6 @@ class MainWindow(QMainWindow):
         # Create a label for the prediction outcome
         labelPredictionOutcome = QLabel("")
         labelPredictionOutcome.setAlignment(Qt.AlignCenter)
-        print(predicted_outcome)
 
         # Set the proper color and text based on the predicted outcome
         if predicted_outcome == "Player":
@@ -363,7 +430,25 @@ class MainWindow(QMainWindow):
         self.labelWinningRate.setText(f"Winning Rate: {winning_rate}%")
         self.labelBetAmount.setText(f"Bet Amount: ${bet_amount:.2f}")
 
+    def remove_last_result(self):
+        if self.results_history and self.labels_history:
+            last_result, row, col = self.results_history.pop()
+            last_label = self.labels_history.pop()
 
+            self.grid_layout.removeWidget(last_label)
+            last_label.deleteLater()
+
+            if self.current_row[col] > 0:
+                self.current_row[col] -= 1
+
+    def reset_logs(self):
+        # Clear the QTextEdit for budget logs
+        self.budgetDisplay.clear()
+
+        # Optionally, reset the budget history and total profit as well
+        self.budget_history = []
+        self.total_profit = 0
+        self.budgetDisplay.setText(f"Budget: $0")
 
     def setup_label_prediction(self, label, text, color):
         label.setStyleSheet(f"""
@@ -410,6 +495,16 @@ class MainWindow(QMainWindow):
             self.showNormal()
         else:
             self.showMaximized()
+    # Define the mousePressEvent method to handle mouse button press events
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.LeftButton:
+            self.dragPos = event.globalPos() - self.pos()
+            event.accept()
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if event.buttons() == Qt.LeftButton:
+            self.move(event.globalPos() - self.dragPos)
+            event.accept()
 
 from PyQt5.QtCore import QThread, pyqtSignal
 

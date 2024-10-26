@@ -1796,7 +1796,7 @@ color:white;</string>
                                 </widget>
                                </item>
                                <item>
-                                <widget class="QPushButton" name="pushButton_5">
+                                <widget class="QPushButton" name="btnResetLogs">
                                  <property name="minimumSize">
                                   <size>
                                    <width>120</width>
@@ -1858,7 +1858,7 @@ color:white;</string>
                                     <x>0</x>
                                     <y>0</y>
                                     <width>474</width>
-                                    <height>189</height>
+                                    <height>184</height>
                                    </rect>
                                   </property>
                                   <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1892,7 +1892,7 @@ color:white;</string>
                               <property name="maximumSize">
                                <size>
                                 <width>16777215</width>
-                                <height>15</height>
+                                <height>20</height>
                                </size>
                               </property>
                               <property name="frameShape">
@@ -1925,8 +1925,14 @@ color:white;</string>
                                  </property>
                                 </widget>
                                </item>
-                               <item>
+                               <item alignment="Qt::AlignBottom">
                                 <widget class="QProgressBar" name="progressBarAIAnalysis">
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>16777215</width>
+                                   <height>15</height>
+                                  </size>
+                                 </property>
                                  <property name="styleSheet">
                                   <string notr="true">font: 10pt &quot;MS Shell Dlg 2&quot;;
 color:white;</string>
@@ -2593,7 +2599,7 @@ color:white;</string>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Copyright 2024 Baccarat Record Management by Marker | All Rights Reserved</string>
+                   <string/>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2613,7 +2619,7 @@ color:white;</string>
                 <item>
                  <widget class="QLabel" name="visit">
                   <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How to Play - &lt;a href=&quot;https://auto-post.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#4673c6;&quot;&gt;Visit our Website&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string/>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
