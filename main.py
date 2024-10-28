@@ -88,81 +88,92 @@ class MainWindow(QMainWindow):
         
     
     def calculate_bet_amount(self):
-        # Use the initial budget instead of the current budget for calculations
-        total_bankroll = self.initial_budget
-
         # Rotate betting system by incrementing the bet round
         self.current_bet_round += 1
 
-        if self.current_bet_round % 3 == 1:  # Oscar's Grind
-            bet_amount = self.oscar_bet
-            self.last_bet_amount = bet_amount  # Track the last bet amount
-            print(f"Oscar's Grind bet: ${bet_amount:.2f}")
-            return bet_amount
+        try:
+            if self.current_bet_round % 3 == 1:  # Oscar's Grind
+                bet_amount = self.oscar_bet
+                self.last_bet_amount = bet_amount  # Track the last bet amount
+                print(f"Oscar's Grind bet: ${bet_amount:.2f}")
+                return bet_amount
 
-        elif self.current_bet_round % 3 == 2:  # Labouchere
-            if len(self.labouchere_list) > 1:
-                bet_amount = self.labouchere_list[0] + self.labouchere_list[-1]
-            else:
-                bet_amount = self.labouchere_list[0]
-            self.last_bet_amount = bet_amount
-            print(f"Labouchere bet: ${bet_amount:.2f}")
-            print("Labouchere list: ",self.labouchere_list," len: ",len(self.labouchere_list))
-            return bet_amount
+            elif self.current_bet_round % 3 == 2:  # Labouchere
+                if len(self.labouchere_list) > 1:
+                    bet_amount = self.labouchere_list[0] + self.labouchere_list[-1]
+                elif len(self.labouchere_list) == 1:
+                    bet_amount = self.labouchere_list[0]
+                else:
+                    raise ValueError("Labouchere list is empty, cannot determine bet amount.")
+                    
+                self.last_bet_amount = bet_amount
+                print(f"Labouchere bet: ${bet_amount:.2f}")
+                print("Labouchere list: ", self.labouchere_list, " len: ", len(self.labouchere_list))
+                return bet_amount
 
-        elif self.current_bet_round % 3 == 0:  # 1324 system
-            bet_amount = self.sequence_1324[self.sequence_1324_index]
-            self.last_bet_amount = bet_amount
-            print(f"1324 system bet: ${bet_amount:.2f}")
-            return bet_amount
+            elif self.current_bet_round % 3 == 0:  # 1324 system
+                if self.sequence_1324_index < len(self.sequence_1324):
+                    bet_amount = self.sequence_1324[self.sequence_1324_index]
+                    self.last_bet_amount = bet_amount
+                    print(f"1324 system bet: ${bet_amount:.2f}")
+                    return bet_amount
+                else:
+                    raise IndexError("1324 sequence index is out of range.")
+
+        except (IndexError, ValueError) as e:
+            self.show_error_message("Calculation Error", f"Error calculating bet amount: {str(e)}")
+            self.last_bet_amount = 0  # Reset to a default value on error
+            return self.last_bet_amount  # Return a default bet amount
+        except Exception as e:
+            self.show_error_message("Unexpected Error", f"An unexpected error occurred: {str(e)}")
+            self.last_bet_amount = 0  # Reset to a default value on error
+            return self.last_bet_amount  # Return a default bet amount
+
 
     def update_betting_system(self, outcome):
-        # Oscar's Grind update
-        print("Updating Betting System - Current Bet Round:", self.current_bet_round)
-        print("Outcome Comparison:", self.last_prediction, "vs", outcome)
+        try:
+            if self.current_bet_round % 3 == 1:  # Oscar's Grind system
+                if self.last_prediction == outcome:  # Win
+                    self.oscar_profit += self.oscar_bet
+                    if self.oscar_profit <= self.oscar_unit:  # Cycle goal not yet reached
+                        self.oscar_bet += self.oscar_unit  # Increase bet by 1 unit ($500)
+                    else:
+                        self.oscar_bet = self.initial_budget * 0.05  # Reset to initial unit size
+                        self.oscar_profit = 0  # Cycle complete, reset profit
+                else:  # Loss case
+                    self.oscar_profit -= self.oscar_bet  # Deduct from profit
+                    self.oscar_bet = self.initial_budget * 0.05  # Reset to initial unit size
 
-        if self.current_bet_round % 3 == 1:  # Oscar's Grind betting system
-            print("Oscar's Grind Current Bet:", self.oscar_bet)
-            print("Oscar's Grind Profit:", self.oscar_profit)
-            print("Oscar's Grind Target Unit (5% of initial budget):", self.oscar_unit)
+                # Display the current Oscar's Grind bet and profit status
+                print(f"Oscar's Grind bet: ${self.oscar_bet:.2f}, Total Profit: ${self.oscar_profit:.2f}")
 
-            if self.last_prediction == outcome:  # Win
-                self.oscar_profit += self.oscar_bet
-                print("Win! New Oscar Profit:", self.oscar_profit)
+            # Labouchere update
+            elif self.current_bet_round % 3 == 2:
+                if self.last_prediction == outcome:  # Win
+                    if len(self.labouchere_list) > 1:
+                        self.labouchere_list.pop(0)  # Remove first element
+                        self.labouchere_list.pop(-1)  # Remove last element
+                    if not self.labouchere_list:  # Reset cycle if all numbers removed
+                        self.labouchere_list = [self.initial_budget * 0.01 for _ in range(10)]
+                else:  # Loss
+                    if len(self.labouchere_list) > 0:  # Ensure there are elements to sum
+                        lost_amount = self.labouchere_list[0] + self.labouchere_list[-1]
+                        self.labouchere_list.append(lost_amount)  # Add lost amount to the end
 
-                if self.oscar_profit <= self.oscar_unit:  # Still below goal
-                    self.oscar_bet += self.oscar_unit  # Increase bet by 1 unit
-                    print("Bet increased by 1 unit. New Oscar's Grind Bet:", self.oscar_bet)
-                else:  # Goal reached or exceeded
-                    self.oscar_bet = self.initial_budget * 0.05  # Reset to 1 unit
-                    self.oscar_profit = 0  # Start a new cycle
-                    print("Goal achieved! Resetting Oscar's Grind bet to 1 unit:", self.oscar_bet)
-                    print("Oscar's Grind profit reset for new cycle.")
+            # 1324 system update
+            elif self.current_bet_round % 3 == 0:
+                if self.last_prediction == outcome:  # Win
+                    if self.sequence_1324_index == len(self.sequence_1324) - 1:
+                        self.sequence_1324_index = 0  # Reset to start after full cycle
+                    else:
+                        self.sequence_1324_index += 1  # Advance in sequence
+                else:  # Loss
+                    self.sequence_1324_index = 0  # Reset to first unit
 
-            else:  # Loss case
-                print("Loss. Oscar's Grind Bet remains the same:", self.oscar_bet)
-            # Loss case: continue with the same bet
-        # Labouchere update
-        elif self.current_bet_round % 3 == 2:
-            if self.last_prediction == outcome:  # Win
-                if len(self.labouchere_list) > 1:
-                    self.labouchere_list.pop(0)
-                    self.labouchere_list.pop(-1)
-                if not self.labouchere_list:  # Reset cycle if all numbers removed
-                    self.labouchere_list = [self.initial_budget * 0.01 for _ in range(10)]
-            else:  # Loss
-                lost_amount = self.labouchere_list[0] + self.labouchere_list[-1]
-                self.labouchere_list.append(lost_amount)  # Add lost amount to the end
+        except Exception as e:
+            # Show error message box if an exception occurs
+            self.show_error_message("Betting Update Error", f"An error occurred while updating the betting system: {str(e)}")
 
-        # 1324 system update
-        elif self.current_bet_round % 3 == 0:
-            if self.last_prediction == outcome:  # Win
-                if self.sequence_1324_index == len(self.sequence_1324) - 1:
-                    self.sequence_1324_index = 0  # Reset to start after full cycle
-                else:
-                    self.sequence_1324_index += 1  # Advance in sequence
-            else:  # Loss
-                self.sequence_1324_index = 0  # Reset to first unit
 
 
     def set_budget(self):
@@ -202,145 +213,79 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, 'Invalid Input', 'Please enter a valid number for the budget.')
 
     def update_budget(self, outcome):
-        # Ensure budget tracking is enabled
-        if self.budget_tracking_enabled:
-            
-            bet_amount = self.last_bet_amount if self.last_bet_amount else 1  # Use last bet amount
-            previous_budget = self.budget
-            change = bet_amount if self.last_prediction == outcome else -bet_amount
+        try:
+            # Ensure budget tracking is enabled
+            if self.budget_tracking_enabled:
+                if outcome == "Tie":  # Assuming "T" denotes a tie
+                    print("Tie outcome - budget remains the same.")
+                    return
+                
+                bet_amount = self.last_bet_amount if self.last_bet_amount else 1  # Use last bet amount
+                previous_budget = self.budget
+                change = bet_amount if self.last_prediction == outcome else -bet_amount
 
-            # Update budget and record change
-            self.budget += change
-            self.total_profit += change
-            self.budget_history.append((self.budget, change))
-            self.update_betting_system(outcome)
-            self.update_budget_display()  # Display the updated budget   
+                # Update budget and record change
+                self.budget += change
+                self.total_profit += change
+                self.budget_history.append((self.budget, change))
+                self.update_betting_system(outcome)
+                self.update_budget_display()  # Display the updated budget
+                
+        except Exception as e:
+            # Show error message box if an exception occurs
+            self.show_error_message("Budget Update Error", f"An error occurred while updating the budget: {str(e)}")
+    
     def update_budget_display(self):
-        # Clear the text area first
-        self.budgetDisplay.clear()
+        try:
+            # Clear the text area first
+            self.budgetDisplay.clear()
 
-        # Log the initial budget with comma formatting
-        initial_budget = f"{self.budget_history[0][0]:,.2f}"
-        self.budgetDisplay.append(f"Initial Budget: ${initial_budget}")
+            # Log the initial budget with comma formatting
+            if self.budget_history:  # Check if there are any budget history entries
+                initial_budget = f"{self.budget_history[0][0]:,.2f}"
+                self.budgetDisplay.append(f"Initial Budget: ${initial_budget}")
 
-        # Log all changes in budget with color and comma formatting
-        for new_budget, change in self.budget_history[1:]:  # Skip the initial budget
-            sign = "+" if change >= 0 else ""
-            color = "#3C7ADA" if change >= 0 else "#FE0009"  # Blue for profit, red for loss
-            new_budget_formatted = f"{new_budget:,.2f}"
-            change_formatted = f"{change:,.2f}"
-            
-            # Apply color styling to the change amount
-            self.budgetDisplay.append(
-                f"{new_budget_formatted} ...... <span style='color:{color};'>{sign}{change_formatted}</span>"
-            )
+                # Log all changes in budget with color and comma formatting
+                for new_budget, change in self.budget_history[1:]:  # Skip the initial budget
+                    sign = "+" if change >= 0 else ""
+                    color = "#3C7ADA" if change >= 0 else "#FE0009"  # Blue for profit, red for loss
+                    new_budget_formatted = f"{new_budget:,.2f}"
+                    change_formatted = f"{change:,.2f}"
+                    
+                    # Apply color styling to the change amount
+                    self.budgetDisplay.append(
+                        f"{new_budget_formatted} ...... <span style='color:{color};'>{sign}{change_formatted}</span>"
+                    )
 
-        # Log the total profit with comma formatting
-        total_profit_formatted = f"{self.total_profit:,.2f}"
-        self.budgetDisplay.append(f"\nTotal Profit: ${total_profit_formatted}")
+                # Log the total profit with comma formatting
+                total_profit_formatted = f"{self.total_profit:,.2f}"
+                self.budgetDisplay.append(f"\nTotal Profit: ${total_profit_formatted}")
+        
+        except Exception as e:
+            # Show error message box if an exception occurs
+            self.show_error_message("Budget Display Error", f"An error occurred while updating the budget display: {str(e)}")
+
+
+
+
 
     
 
+    def show_error_message(self, error_title, error_message):
+        """Display an error message in a QMessageBox."""
+        QMessageBox.critical(self, error_title, error_message)
 
-
-
-    
     def initGrid(self):
-        self.grid_layout = QGridLayout()
-        rows = 6
-        columns = 16
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
-        self.grid_layout.setSpacing(0)
+        try:
+            self.grid_layout = QGridLayout()
+            rows = 6
+            columns = 16
+            self.grid_layout.setContentsMargins(0, 0, 0, 0)
+            self.grid_layout.setSpacing(0)
 
-        self.grid_cells = [[None for _ in range(columns)] for _ in range(rows)]
-        for row in range(rows):
-            for col in range(columns):
-                label = QLabel("")
-                label.setAlignment(Qt.AlignCenter)
-                label.setStyleSheet(""" 
-                    background-color: white; 
-                    color: black; 
-                    border: 1px solid #D5D5D5; 
-                    margin: 0px; 
-                    padding: 0px; 
-                """)
-                self.grid_cells[row][col] = label
-                self.grid_layout.addWidget(label, row, col)
-
-        self.gridFrame.setLayout(self.grid_layout)
-
-    def update_player_result(self):
-        self.add_result_to_grid("Player")
-
-    def update_tie_result(self):
-        self.add_result_to_grid("Tie")
-
-    def update_bank_result(self):
-        self.add_result_to_grid("Bank")
-
-    def add_result_to_grid(self, result):
-        col = 0
-        while col < len(self.current_row) and self.current_row[col] >= len(self.grid_cells):
-            col += 1
-
-        if col >= len(self.current_row):
-            return
-
-        row = self.current_row[col]
-        if row < len(self.grid_cells):
-            new_label = QLabel("")
-            new_label.setAlignment(Qt.AlignCenter)
-            self.results_history.append((result, row, col))
-            self.labels_history.append(new_label)
-
-            if result == "Player":
-                self.setup_label(new_label, "P", "#3E8AEF")
-            elif result == "Tie":
-                self.setup_label(new_label, "T", "#29BE66")
-            elif result == "Bank":
-                self.setup_label(new_label, "B", "#FF0000")
-
-            self.grid_layout.addWidget(new_label, row, col)
-            self.current_row[col] += 1
-            # Now update the budget after the result is logged
-            if self.last_prediction is not None:
-                self.update_budget(result)
-
-
-    def setup_label(self, label, text, color):
-        label.setStyleSheet(f"""
-            background-color: {color}; 
-            border-radius: 17px; 
-            color: white; 
-            margin: 5px; 
-            min-height:34px;
-            min-width:34px;
-            max-height:34px;
-            max-width:34px;
-        """)
-        label.setText(text)
-
-    def reset_records(self):
-        reply = QMessageBox.question(self, 'Reset Records',
-                                     'Are you sure you want to reset all records?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            self.results_history.clear()
-            self.labels_history.clear()
-            self.current_row = [0] * 16
-
-            # Clear the grid
-            for row in range(len(self.grid_cells)):
-                for col in range(len(self.grid_cells[row])):
-                    if self.grid_cells[row][col]:
-                        self.grid_layout.removeWidget(self.grid_cells[row][col])
-                        self.grid_cells[row][col].deleteLater()
-
-            # Re-populate grid_cells with empty labels
-            self.grid_cells = [[None for _ in range(16)] for _ in range(6)]
-            for row in range(6):
-                for col in range(16):
+            self.grid_cells = [[None for _ in range(columns)] for _ in range(rows)]
+            for row in range(rows):
+                for col in range(columns):
                     label = QLabel("")
                     label.setAlignment(Qt.AlignCenter)
                     label.setStyleSheet(""" 
@@ -353,134 +298,269 @@ class MainWindow(QMainWindow):
                     self.grid_cells[row][col] = label
                     self.grid_layout.addWidget(label, row, col)
 
-        # Reset the prediction cache
-        self.last_prediction = None
-        self.last_winning_rate = None
-        self.last_bet_amount = None
-        self.prediction_history_size = 0
+            self.gridFrame.setLayout(self.grid_layout)
+        
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred during grid initialization: {str(e)}")
 
-        # Reset the progress bar
-        self.progressBarAIAnalysis.setValue(0)
+    def update_player_result(self):
+        try:
+            self.add_result_to_grid("Player")
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while updating the player result: {str(e)}")
+
+    def update_tie_result(self):
+        try:
+            self.add_result_to_grid("Tie")
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while updating the tie result: {str(e)}")
+
+    def update_bank_result(self):
+        try:
+            self.add_result_to_grid("Bank")
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while updating the bank result: {str(e)}")
+
+
+    def add_result_to_grid(self, result):
+        try:
+            col = 0
+            while col < len(self.current_row) and self.current_row[col] >= len(self.grid_cells):
+                col += 1
+
+            if col >= len(self.current_row):
+                return
+
+            row = self.current_row[col]
+            if row < len(self.grid_cells):
+                new_label = QLabel("")
+                new_label.setAlignment(Qt.AlignCenter)
+                self.results_history.append((result, row, col))
+                self.labels_history.append(new_label)
+
+                if result == "Player":
+                    self.setup_label(new_label, "P", "#3E8AEF")
+                elif result == "Tie":
+                    self.setup_label(new_label, "T", "#29BE66")
+                elif result == "Bank":
+                    self.setup_label(new_label, "B", "#FF0000")
+
+                self.grid_layout.addWidget(new_label, row, col)
+                self.current_row[col] += 1
+
+                # Update the budget after logging the result
+                if self.last_prediction is not None:
+                    self.update_budget(result)
+
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while adding the result to the grid: {str(e)}")
+
+    def setup_label(self, label, text, color):
+        try:
+            label.setStyleSheet(f"""
+                background-color: {color}; 
+                border-radius: 17px; 
+                color: white; 
+                margin: 5px; 
+                min-height:34px;
+                min-width:34px;
+                max-height:34px;
+                max-width:34px;
+            """)
+            label.setText(text)
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while setting up the label: {str(e)}")
+
+
+    def reset_records(self):
+        try:
+            reply = QMessageBox.question(self, 'Reset Records',
+                                        'Are you sure you want to reset all records?',
+                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                # Clear history and reset grid tracking
+                self.results_history.clear()
+                self.labels_history.clear()
+                self.current_row = [0] * 16
+
+                # Clear the grid
+                for row in range(len(self.grid_cells)):
+                    for col in range(len(self.grid_cells[row])):
+                        if self.grid_cells[row][col]:
+                            self.grid_layout.removeWidget(self.grid_cells[row][col])
+                            self.grid_cells[row][col].deleteLater()
+
+                # Re-populate grid_cells with empty labels
+                self.grid_cells = [[None for _ in range(16)] for _ in range(6)]
+                for row in range(6):
+                    for col in range(16):
+                        label = QLabel("")
+                        label.setAlignment(Qt.AlignCenter)
+                        label.setStyleSheet(""" 
+                            background-color: white; 
+                            color: black; 
+                            border: 1px solid #D5D5D5; 
+                            margin: 0px; 
+                            padding: 0px; 
+                        """)
+                        self.grid_cells[row][col] = label
+                        self.grid_layout.addWidget(label, row, col)
+
+                # Reset prediction cache and progress bar
+                self.last_prediction = None
+                self.last_winning_rate = None
+                self.last_bet_amount = None
+                self.prediction_history_size = 0
+                self.progressBarAIAnalysis.setValue(0)
+
+        except Exception as e:
+            self.show_error_message("Error", f"An error occurred while resetting records: {str(e)}")
+
     def predict_outcome(self):
-        if len(self.results_history) <= 15:
-            QMessageBox.warning(self, 'Insufficient Data', 'Insufficient data for analysis.')
-            return
+        try:
+            if len(self.results_history) <= 15:
+                QMessageBox.warning(self, 'Insufficient Data', 'Insufficient data for analysis.')
+                return
 
-        # Check if there are no new records since the last prediction
-        if self.prediction_history_size == len(self.results_history) and self.last_prediction:
-            self.display_prediction(self.last_prediction, self.last_winning_rate, self.last_bet_amount)
-            return
+            # Check if there are no new records since the last prediction
+            if self.prediction_history_size == len(self.results_history) and self.last_prediction:
+                self.display_prediction(self.last_prediction, self.last_winning_rate, self.last_bet_amount)
+                return
 
-        # Run prediction analysis if new records are added
-        self.progressBarAIAnalysis.setValue(0)
-        self.prediction_thread = PredictionThread()
-        self.prediction_thread.update_progress.connect(self.progressBarAIAnalysis.setValue)
-        self.prediction_thread.prediction_ready.connect(self.cache_and_display_prediction)
-        self.prediction_thread.start()
+            # Run prediction analysis if new records are added
+            self.progressBarAIAnalysis.setValue(0)
+            self.prediction_thread = PredictionThread()
+            self.prediction_thread.update_progress.connect(self.progressBarAIAnalysis.setValue)
+            self.prediction_thread.prediction_ready.connect(self.cache_and_display_prediction)
+            self.prediction_thread.start()
+
+        except Exception as e:
+            self.show_error_message("Prediction Error", f"An error occurred during outcome prediction: {str(e)}")
 
     def cache_and_display_prediction(self, predicted_outcome, winning_rate, bet_amount):
-        # Cache the prediction results
-        if predicted_outcome=='Banker':
-            predicted_outcome='Bank'
-        self.last_prediction = predicted_outcome
-        self.last_winning_rate = winning_rate
-        self.prediction_history_size = len(self.results_history)
+        try:
+            # Cache the prediction results
+            if predicted_outcome == 'Banker':
+                predicted_outcome = 'Bank'
+            self.last_prediction = predicted_outcome
+            self.last_winning_rate = winning_rate
+            self.prediction_history_size = len(self.results_history)
 
-        # Calculate the bet amount based on the current betting system
-        self.last_bet_amount = self.calculate_bet_amount()
+            # Calculate the bet amount based on the current betting system
+            self.last_bet_amount = self.calculate_bet_amount()
 
-        
+            # Display the prediction
+            self.display_prediction(predicted_outcome, winning_rate, self.last_bet_amount)
+        except Exception as e:
+            self.show_error_message("Prediction Caching Error", f"An error occurred while caching or displaying the prediction: {str(e)}")
 
-        # Display the prediction
-        self.display_prediction(predicted_outcome, winning_rate, self.last_bet_amount)
-
-
-
-    
 
     def display_prediction(self, predicted_outcome, winning_rate, bet_amount):
-    # Ensure the predictionOutcomeFrame has a layout
-        if not self.predictionOutcomeFrame.layout():
-            self.predictionOutcomeFrame.setLayout(QVBoxLayout())
+        try:
+            # Ensure the predictionOutcomeFrame has a layout
+            if not self.predictionOutcomeFrame.layout():
+                self.predictionOutcomeFrame.setLayout(QVBoxLayout())
 
-        # Clear the existing prediction outcome frame
-        layout = self.predictionOutcomeFrame.layout()
-        if layout:  # Check if layout exists
-            for i in reversed(range(layout.count())): 
-                widget = layout.itemAt(i).widget() 
-                if widget is not None: 
-                    widget.deleteLater()  # Properly delete the widget
+            # Clear the existing prediction outcome frame
+            layout = self.predictionOutcomeFrame.layout()
+            if layout:  # Check if layout exists
+                for i in reversed(range(layout.count())):
+                    widget = layout.itemAt(i).widget()
+                    if widget is not None:
+                        widget.deleteLater()  # Properly delete the widget
 
-        # Create a label for the prediction outcome
-        labelPredictionOutcome = QLabel("")
-        labelPredictionOutcome.setAlignment(Qt.AlignCenter)
+            # Create a label for the prediction outcome
+            labelPredictionOutcome = QLabel("")
+            labelPredictionOutcome.setAlignment(Qt.AlignCenter)
 
-        # Set the proper color and text based on the predicted outcome
-        if predicted_outcome == "Player":
-            self.setup_label_prediction(labelPredictionOutcome, "P", "#3E8AEF")  # Blue for Player
-        elif predicted_outcome == "Tie":
-            self.setup_label_prediction(labelPredictionOutcome, "T", "#29BE66")  # Green for Tie
-        elif predicted_outcome == "Bank":
-            self.setup_label_prediction(labelPredictionOutcome, "B", "#FF0000")  # Red for Banker
+            # Set the proper color and text based on the predicted outcome
+            if predicted_outcome == "Player":
+                self.setup_label_prediction(labelPredictionOutcome, "P", "#3E8AEF")  # Blue for Player
+            elif predicted_outcome == "Tie":
+                self.setup_label_prediction(labelPredictionOutcome, "T", "#29BE66")  # Green for Tie
+            elif predicted_outcome == "Bank":
+                self.setup_label_prediction(labelPredictionOutcome, "B", "#FF0000")  # Red for Banker
 
-        # Add the new prediction label to the layout
-        layout.addWidget(labelPredictionOutcome)
+            # Add the new prediction label to the layout
+            layout.addWidget(labelPredictionOutcome)
 
-        # Set winning rate and bet amount text
-        self.labelWinningRate.setText(f"Winning Rate: {winning_rate}%")
-        self.labelBetAmount.setText(f"Bet Amount: ${bet_amount:.2f}")
+            # Set winning rate and bet amount text
+            self.labelWinningRate.setText(f"Winning Rate: {winning_rate}%")
+            self.labelBetAmount.setText(f"Bet Amount: ${bet_amount:.2f}")
+
+        except Exception as e:
+            self.show_error_message("Display Prediction Error", f"An error occurred while displaying the prediction: {str(e)}")
 
     def remove_last_result(self):
-        if self.results_history and self.labels_history:
-            last_result, row, col = self.results_history.pop()
-            last_label = self.labels_history.pop()
+        try:
+            if self.results_history and self.labels_history:
+                last_result, row, col = self.results_history.pop()
+                last_label = self.labels_history.pop()
 
-            self.grid_layout.removeWidget(last_label)
-            last_label.deleteLater()
+                self.grid_layout.removeWidget(last_label)
+                last_label.deleteLater()
 
-            if self.current_row[col] > 0:
-                self.current_row[col] -= 1
+                if self.current_row[col] > 0:
+                    self.current_row[col] -= 1
+
+        except Exception as e:
+            self.show_error_message("Remove Last Result Error", f"An error occurred while removing the last result: {str(e)}")
+
 
     def reset_logs(self):
-        # Clear the QTextEdit for budget logs
-        self.budgetDisplay.clear()
+        try:
+            # Clear the QTextEdit for budget logs
+            self.budgetDisplay.clear()
 
-        # Optionally, reset the budget history and total profit as well
-        self.budget_history = []
-        self.total_profit = 0
-        self.budgetDisplay.setText(f"Budget: $0")
+            # Optionally, reset the budget history and total profit as well
+            self.budget_history = []
+            self.total_profit = 0
+            self.budgetDisplay.setText(f"Budget: $0")
+
+        except Exception as e:
+            self.show_error_message("Reset Logs Error", f"An error occurred while resetting the logs: {str(e)}")
 
     def setup_label_prediction(self, label, text, color):
-        label.setStyleSheet(f"""
-            background-color: {color}; 
-            border-radius: 25px; 
-            color: white; 
-            min-width:50px;
-            max-width:50px;
-            min-height:50px;
-            max-height:50px;            
-        """)
-        label.setText(text)
+        try:
+            label.setStyleSheet(f"""
+                background-color: {color}; 
+                border-radius: 25px; 
+                color: white; 
+                min-width:50px;
+                max-width:50px;
+                min-height:50px;
+                max-height:50px;            
+            """)
+            label.setText(text)
+
+        except Exception as e:
+            self.show_error_message("Setup Label Prediction Error", f"An error occurred while setting up the label: {str(e)}")
 
     def initToggle(self):
-        if hasattr(self, 'toggleFrame'):
-            layout = QVBoxLayout(self.toggleFrame)
-            layout.setSpacing(2)
+        try:
+            if hasattr(self, 'toggleFrame'):
+                layout = QVBoxLayout(self.toggleFrame)
+                layout.setSpacing(2)
 
-            label = QLabel("Budget Tracking")
-            label.setAlignment(Qt.AlignLeft)
-            label.setStyleSheet(""" 
-                font-family: 'MS Shell Dlg 2'; 
-                font-size: 13px; 
-                font-weight: bold; 
-                color: white; 
-            """)
-            toggle = AnimatedToggle(checked_color="#93C47D", pulse_checked_color="#44FFB000")
-            toggle.setFixedSize(80, 50)
-            toggle.stateChanged.connect(self.on_toggle_change)
+                label = QLabel("Budget Tracking")
+                label.setAlignment(Qt.AlignLeft)
+                label.setStyleSheet(""" 
+                    font-family: 'MS Shell Dlg 2'; 
+                    font-size: 13px; 
+                    font-weight: bold; 
+                    color: white; 
+                """)
+                toggle = AnimatedToggle(checked_color="#93C47D", pulse_checked_color="#44FFB000")
+                toggle.setFixedSize(80, 50)
+                toggle.stateChanged.connect(self.on_toggle_change)
 
-            layout.addWidget(label)
-            layout.addWidget(toggle)
+                layout.addWidget(label)
+                layout.addWidget(toggle)
+
+        except Exception as e:
+            self.show_error_message("Initialize Toggle Error", f"An error occurred while initializing the toggle: {str(e)}")
+
 
     def on_toggle_change(self, state):
         if state == Qt.Checked:
