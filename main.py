@@ -427,7 +427,16 @@ class MainWindow(QMainWindow):
             if self.prediction_history_size == len(self.results_history) and self.last_prediction:
                 self.display_prediction(self.last_prediction, self.last_winning_rate, self.last_bet_amount)
                 return
-
+            # Clear the existing prediction outcome frame
+            layout = self.predictionOutcomeFrame.layout()
+            if layout:  # Check if layout exists
+                for i in reversed(range(layout.count())):
+                    widget = layout.itemAt(i).widget()
+                    if widget is not None:
+                        widget.deleteLater()  # Properly delete the widget
+            # Set winning rate and bet amount text
+            self.labelWinningRate.setText(f"Winning Rate: Loading...")
+            self.labelBetAmount.setText(f"Bet Amount: Loading...")
             # Run prediction analysis if new records are added
             self.progressBarAIAnalysis.setValue(0)
             self.prediction_thread = PredictionThread()
