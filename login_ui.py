@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.NonModal)
-        MainWindow.resize(622, 740)
+        MainWindow.resize(534, 655)
         MainWindow.setStyleSheet("/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
 "\n"
 "///////////////////////////////////////////////////////////////////////////////////////////////// */\n"
@@ -767,10 +767,12 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         font.setWeight(50)
         self.creditsLabel.setFont(font)
+        self.creditsLabel.setText("")
         self.creditsLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.creditsLabel.setObjectName("creditsLabel")
         self.horizontalLayout_5.addWidget(self.creditsLabel)
         self.visit = QtWidgets.QLabel(self.bottomBar)
+        self.visit.setText("")
         self.visit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.visit.setObjectName("visit")
         self.horizontalLayout_5.addWidget(self.visit)
@@ -823,6 +825,4 @@ class Ui_MainWindow(object):
         self.btn_message.setText(_translate("MainWindow", "Message"))
         self.btn_print.setText(_translate("MainWindow", "Print"))
         self.btn_logout.setText(_translate("MainWindow", "Logout"))
-        self.creditsLabel.setText(_translate("MainWindow", "Copyright 2024 Baccarat Record Management by Marker | All Rights Reserved"))
-        self.visit.setText(_translate("MainWindow", "<html><head/><body><p>How to Play - <a href=\"https://auto-post.net/\"><span style=\" text-decoration: underline; color:#4673c6;\">Visit our Website</span></a></p></body></html>"))
 import resources_rc
