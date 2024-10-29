@@ -812,7 +812,7 @@ class Ui_MainWindow(object):
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-uic main.ui &gt; ui_main.py</span></p>\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">Convert QRC</span></p>\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-rcc resources.qrc -o resources_rc.py</span></p></body></html>"))
-        self.titleRightInfo.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#4673c6;\">TLG </span><span style=\" font-size:12pt; font-weight:600; color:#ffffff;\">Baccarat Management</span><span style=\" color:#ffffff;\"> </span></p></body></html>\n"
+        self.titleRightInfo.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#4673c6;\">TLG </span><span style=\" font-size:12pt; font-weight:600; color:#ffffff;\">Baccarat System</span><span style=\" color:#ffffff;\"> </span></p></body></html>\n"
 ""))
         self.minimizeAppBtn.setToolTip(_translate("MainWindow", "Minimize"))
         self.closeAppBtn.setToolTip(_translate("MainWindow", "Close"))
