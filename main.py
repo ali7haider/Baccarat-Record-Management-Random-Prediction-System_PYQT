@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
         self.budget_tracking_enabled = False  # By default, tracking is off
         self.budget = 0  # Initial budget
         self.bet_amount = 10  # Default bet amount, can be adjusted
-        self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+        self.budgetDisplay.setText(f"Budget: ${self.budget}")
         # List to track budget history
         self.budget_history = []  # List of tuples (new_budget, change)
         self.total_profit = 0
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
             if self.current_bet_round % 3 == 1:  # Oscar's Grind system
                 if self.last_prediction == outcome:  # Win
                     self.oscar_profit += self.oscar_bet
-                    if self.oscar_profit <= self.oscar_unit:  # Cycle goal not yet reached
+                    if self.oscar_profit < self.oscar_unit:  # Cycle goal not yet reached
                         self.oscar_bet += self.oscar_unit  # Increase bet by 1 unit ($500)
                     else:
                         self.oscar_bet = self.initial_budget * 0.05  # Reset to initial unit size
@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
             # Set initial and current budget
             self.budget = budget
             self.initial_budget = budget  # Store initial budget separately
-            self.budgetDisplay.setText(f"Budget: ${self.budget:.2f}")
+            self.budgetDisplay.setText(f"Budget: ${self.budget}")
 
             # Reset budget history and total profit
             self.budget_history = [(self.budget, 0)]  # Start with initial budget and no change
@@ -240,25 +240,25 @@ class MainWindow(QMainWindow):
             # Clear the text area first
             self.budgetDisplay.clear()
 
-            # Log the initial budget with comma formatting
+            # Log the initial budget with comma formatting (no decimal places)
             if self.budget_history:  # Check if there are any budget history entries
-                initial_budget = f"{self.budget_history[0][0]:,.2f}"
+                initial_budget = f"{int(self.budget_history[0][0]):,}"
                 self.budgetDisplay.append(f"Initial Budget: ${initial_budget}")
 
-                # Log all changes in budget with color and comma formatting
+                # Log all changes in budget with color and comma formatting (no decimal places)
                 for new_budget, change in self.budget_history[1:]:  # Skip the initial budget
                     sign = "+" if change >= 0 else ""
                     color = "#3C7ADA" if change >= 0 else "#FE0009"  # Blue for profit, red for loss
-                    new_budget_formatted = f"{new_budget:,.2f}"
-                    change_formatted = f"{change:,.2f}"
+                    new_budget_formatted = f"{int(new_budget):,}"
+                    change_formatted = f"{int(change):,}"
                     
                     # Apply color styling to the change amount
                     self.budgetDisplay.append(
                         f"{new_budget_formatted} ...... <span style='color:{color};'>{sign}{change_formatted}</span>"
                     )
 
-                # Log the total profit with comma formatting
-                total_profit_formatted = f"{self.total_profit:,.2f}"
+                # Log the total profit with comma formatting (no decimal places)
+                total_profit_formatted = f"{int(self.total_profit):,}"
                 self.budgetDisplay.append(f"\nTotal Profit: ${total_profit_formatted}")
         
         except Exception as e:
@@ -406,6 +406,17 @@ class MainWindow(QMainWindow):
                         """)
                         self.grid_cells[row][col] = label
                         self.grid_layout.addWidget(label, row, col)
+                # Clear the existing prediction outcome frame
+                layout = self.predictionOutcomeFrame.layout()
+                if layout:  # Check if layout exists
+                    for i in reversed(range(layout.count())):
+                        widget = layout.itemAt(i).widget()
+                        if widget is not None:
+                            widget.deleteLater()  # Properly delete the widget
+                # Set winning rate and bet amount text
+                self.labelWinningRate.setText(f"")
+                self.labelBetAmount.setText(f"")
+                self.current_bet_round =0
 
                 # Reset prediction cache and progress bar
                 self.last_prediction = None
@@ -427,6 +438,9 @@ class MainWindow(QMainWindow):
             if self.prediction_history_size == len(self.results_history) and self.last_prediction:
                 self.display_prediction(self.last_prediction, self.last_winning_rate, self.last_bet_amount)
                 return
+            if not self.predictionOutcomeFrame.layout():
+                self.predictionOutcomeFrame.setLayout(QVBoxLayout())
+
             # Clear the existing prediction outcome frame
             layout = self.predictionOutcomeFrame.layout()
             if layout:  # Check if layout exists
@@ -437,6 +451,7 @@ class MainWindow(QMainWindow):
             # Set winning rate and bet amount text
             self.labelWinningRate.setText(f"Winning Rate: Loading...")
             self.labelBetAmount.setText(f"Bet Amount: Loading...")
+
             # Run prediction analysis if new records are added
             self.progressBarAIAnalysis.setValue(0)
             self.prediction_thread = PredictionThread()
@@ -496,7 +511,7 @@ class MainWindow(QMainWindow):
 
             # Set winning rate and bet amount text
             self.labelWinningRate.setText(f"Winning Rate: {winning_rate}%")
-            self.labelBetAmount.setText(f"Bet Amount: ${bet_amount:.2f}")
+            self.labelBetAmount.setText(f"Bet Amount: ${bet_amount}")
 
         except Exception as e:
             self.show_error_message("Display Prediction Error", f"An error occurred while displaying the prediction: {str(e)}")

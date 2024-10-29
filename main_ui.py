@@ -1316,7 +1316,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.titleLeftApp.setText(_translate("MainWindow", "Auto Post"))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:15pt; font-weight:600; color:#4673c6;\">BMS</span></p></body></html>"))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:15pt; font-weight:600; color:#4673c6;\">TLG</span></p></body></html>"))
         self.extraLabel.setText(_translate("MainWindow", "Left Box"))
         self.extraCloseColumnBtn.setToolTip(_translate("MainWindow", "Close left box"))
         self.btn_share.setText(_translate("MainWindow", "Share"))
@@ -1334,7 +1334,7 @@ class Ui_MainWindow(object):
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-uic main.ui &gt; ui_main.py</span></p>\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">Convert QRC</span></p>\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-rcc resources.qrc -o resources_rc.py</span></p></body></html>"))
-        self.titleRightInfo.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#4673c6;\"></span><span style=\" font-size:12pt; font-weight:600; color:#ffffff;\">Baccarat Record Management and Random Prediction System</span><span style=\" color:#ffffff;\"> </span></p></body></html>"))
+        self.titleRightInfo.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#4673c6;\"></span><span style=\" font-size:12pt; font-weight:600; color:#ffffff;\">TLG Baccarat System</span><span style=\" color:#ffffff;\"> </span></p></body></html>"))
         self.minimizeAppBtn.setToolTip(_translate("MainWindow", "Minimize"))
         self.maximizeRestoreAppBtn.setToolTip(_translate("MainWindow", "Maximize"))
         self.closeAppBtn.setToolTip(_translate("MainWindow", "Close"))
@@ -1348,7 +1348,7 @@ class Ui_MainWindow(object):
         self.btnPlayer.setText(_translate("MainWindow", "P"))
         self.btnTie.setToolTip(_translate("MainWindow", "Tie"))
         self.btnTie.setText(_translate("MainWindow", "T"))
-        self.btnBank.setToolTip(_translate("MainWindow", "Bank"))
+        self.btnBank.setToolTip(_translate("MainWindow", "Banker"))
         self.btnBank.setText(_translate("MainWindow", "B"))
         self.btnReset.setText(_translate("MainWindow", "Reset"))
         self.btnBack.setText(_translate("MainWindow", "Back"))
